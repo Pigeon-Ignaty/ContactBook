@@ -26,7 +26,7 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QListView" name="listView"/>
+      <widget class="QListView" name="contactList"/>
       <widget class="QWidget" name="widget" native="true">
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
@@ -47,7 +47,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton">
+             <widget class="QPushButton" name="m_addBtn">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -60,12 +60,15 @@
                </font>
               </property>
               <property name="text">
-               <string>+</string>
+               <string>Добавить</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_2">
+             <widget class="QPushButton" name="m_deleteBtn">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -78,7 +81,28 @@
                </font>
               </property>
               <property name="text">
-               <string>Delete</string>
+               <string>Удалить</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="m_saveBtn">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Сохранить</string>
               </property>
              </widget>
             </item>
@@ -111,6 +135,9 @@
                 <pointsize>12</pointsize>
                </font>
               </property>
+              <property name="placeholderText">
+               <string>Обязательное поле</string>
+              </property>
              </widget>
             </item>
            </layout>
@@ -136,11 +163,14 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="m_SernameEdit">
+             <widget class="QLineEdit" name="m_surnameEdit">
               <property name="font">
                <font>
                 <pointsize>12</pointsize>
                </font>
+              </property>
+              <property name="placeholderText">
+               <string>Обязательное поле</string>
               </property>
              </widget>
             </item>
@@ -173,6 +203,9 @@
                 <pointsize>12</pointsize>
                </font>
               </property>
+              <property name="placeholderText">
+               <string>Обязательное поле</string>
+              </property>
              </widget>
             </item>
            </layout>
@@ -204,6 +237,9 @@
                 <pointsize>12</pointsize>
                </font>
               </property>
+              <property name="placeholderText">
+               <string>Необязательное поле</string>
+              </property>
              </widget>
             </item>
            </layout>
@@ -229,11 +265,14 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="m_NoteEdit">
+             <widget class="QLineEdit" name="m_noteEdit">
               <property name="font">
                <font>
                 <pointsize>12</pointsize>
                </font>
+              </property>
+              <property name="placeholderText">
+               <string>Необязательное поле</string>
               </property>
              </widget>
             </item>

@@ -10,16 +10,24 @@ find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 set(SOURCES
     src/main.cpp
     src/mainwindow.cpp
+    src/AddContactDialog.cpp
+    model/ContactModel.cpp
 )
 
 set(HEADERS
     src/mainwindow.h
+    src/AddContactDialog.cpp
+    model/ContactModel.h
 )
 set(FORMS
-    src/mainwindow.ui)
+    src/mainwindow.ui
+    src/AddContactDialog.ui
+    )
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
+
+include_directories(${CMAKE_SOURCE_DIR}/model)
 
 add_executable(${PROJECT_NAME} WIN32 ${SOURCES} ${HEADERS} ${FORMS})
 
