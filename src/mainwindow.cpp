@@ -12,6 +12,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->splitter->setCollapsible(1,false);
 
     m_model = new ContactModel(this);
+    QString xmlPath = QCoreApplication::applicationDirPath() + "/data.xml";
+    m_model->loadModel(xmlPath);
     ui->contactList->setModel(m_model);
 
     connect(ui->m_nameEdit, &QLineEdit::textChanged, this, &MainWindow::updateSaveButtonState);
@@ -168,4 +170,12 @@ void MainWindow::showEditWidgets(bool show)
         ui->label_5->hide();
         ui->label->hide();
     }
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QString xmlPath = QCoreApplication::applicationDirPath() + "/data.xml";
+
+    m_model->saveModel(xmlPath);
+    QMainWindow::closeEvent(event);
 }

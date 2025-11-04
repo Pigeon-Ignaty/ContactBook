@@ -30,6 +30,8 @@ private:
     bool isValid = false; //Переменная разрешающая сохранение, если данные валидные
     void showEditWidgets(bool show);
     AddContactDialog *m_addDialog;
+protected:
+    void closeEvent(QCloseEvent *event) override;
 
 };
 
