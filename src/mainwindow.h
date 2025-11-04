@@ -35,6 +35,7 @@ private:
     AddContactDialog *m_addDialog;
 
     void showEditWidgets(bool show);
+    void setStyle();
 protected:
     void closeEvent(QCloseEvent *event) override;
 };

@@ -16,6 +16,39 @@ AddContactDialog::AddContactDialog(QWidget *parent) :
     connect(ui->m_cancel, &QPushButton::clicked, this, &QDialog::reject);
     connect(ui->m_save, &QPushButton::clicked, this, &QDialog::accept);
 
+    this->setStyleSheet(R"(
+        QDialog{
+            background-color: #f2f4f7;
+        }
+        QLabel{
+            color: #2b2b2b;
+            font-weight: bold;
+        }
+        QLineEdit{
+            background-color: #ffffff;
+            border: 1px solid #a8b0ba;
+            border-radius: 6px;
+            padding: 4px;
+        }
+        QLineEdit:focus{
+            border: 1px solid #0078d7;
+            background-color: #f0f8ff;
+        }
+        QPushButton{
+            background-color: #0078d7;
+            color: white;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-weight: 500;
+        }
+        QPushButton:hover{
+            background-color: #005fa3;
+        }
+        QPushButton:disabled{
+            background-color: #c0c0c0;
+            color: #666666;
+        }
+    )");
 }
 
 AddContactDialog::~AddContactDialog()

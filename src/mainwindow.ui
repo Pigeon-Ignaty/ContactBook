@@ -16,6 +16,11 @@
     <height>0</height>
    </size>
   </property>
+  <property name="font">
+   <font>
+    <pointsize>8</pointsize>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Список контактов</string>
   </property>
@@ -312,10 +317,24 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>20</height>
+     <height>25</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
+   </property>
    <widget class="QMenu" name="menu">
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
     <property name="title">
      <string>Справка</string>
     </property>
@@ -335,6 +354,11 @@
   <action name="action">
    <property name="text">
     <string>О программе</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
    </property>
   </action>
  </widget>

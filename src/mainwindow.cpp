@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    setStyle();
     ui->splitter->setSizes({500,100});
     ui->splitter->setCollapsible(0,false);
     ui->splitter->setCollapsible(1,false);
@@ -149,6 +150,78 @@ void MainWindow::showEditWidgets(bool show)
     }
 }
 
+void MainWindow::setStyle()
+{
+    this->setStyleSheet(R"(
+         QMainWindow {
+             background-color: #f2f4f7;
+         }
+
+         QLabel {
+             color: #2b2b2b;
+             font-weight: bold;
+             font-size: 15px;
+         }
+
+         QLineEdit {
+             background-color: #ffffff;
+             border: 1px solid #a8b0ba;
+             border-radius: 6px;
+             padding: 4px;
+             font-size: 15px;
+         }
+
+         QLineEdit:focus {
+             border: 1px solid #0078d7;
+             background-color: #f0f8ff;
+         }
+
+         QPushButton {
+             background-color: #0078d7;
+             color: white;
+             border-radius: 6px;
+             padding: 5px 10px;
+             font-weight: 500;
+             font-size: 15px;
+         }
+
+         QPushButton:hover {
+             background-color: #005fa3;
+         }
+
+         QPushButton:disabled {
+             background-color: #c0c0c0;
+             color: #666666;
+         }
+
+         QListView {
+             background-color: #ffffff;
+             border: 1px solid #ccc;
+             padding: 5px;
+             font-size: 15px;
+         }
+
+         QListView::item:selected {
+             background-color: #0078d7;
+             color: white;
+         }
+     )");
+
+    ui->contactList->setStyleSheet(
+        "QListView "
+        "{"
+        "background-color: #f4f4f4;"
+        "border: 1px solid #ccc;"
+        "padding: 5px;"
+        "}"
+        "QListView::item:selected "
+        "{"
+        "background-color: #0078d7;"
+        "color: white;"
+        "}"
+    );
+}
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     QString xmlPath = QCoreApplication::applicationDirPath() + "/data.xml";
@@ -175,9 +248,15 @@ void MainWindow::on_m_deleteBtn_clicked()
     if (!item)
         return;
 
-    auto reply = QMessageBox::question(this, "Удалить контакт?",
-                          "Вы уверены, что хотите удалить контакт " + item->text(),
-                          QMessageBox::Yes | QMessageBox::No);
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("Удалить контакт?");
+    msgBox.setText("Вы уверены, что хотите удалить контакт " + item->text() + "?");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.button(QMessageBox::Yes)->setText("Да");
+    msgBox.button(QMessageBox::No)->setText("Нет");
+
+    auto reply = msgBox.exec();
+
     if(reply == QMessageBox::No)
         return;
 
@@ -191,7 +270,17 @@ void MainWindow::on_m_deleteBtn_clicked()
 
 void MainWindow::on_action_triggered()
 {
-        QMessageBox::about(this, "О программе",
-                           "Список контактов v1.0\n"
-                           "Простое приложение для хранения списка контактов.\n");
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("О программе");
+    msgBox.setText("Список контактов v1.0\nПростое приложение для хранения списка контактов.");
+
+    msgBox.setStyleSheet(
+        "QLabel {"
+        "   color: #333333;"
+        "   font-size: 15px;"
+        "   font-weight: normal;"
+        "}"
+    );
+
+    msgBox.exec();
 }
