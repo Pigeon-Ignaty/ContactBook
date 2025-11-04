@@ -18,8 +18,7 @@ public:
 private:
     Ui::AddContactDialog *ui;
 protected:
-    void showEvent(QShowEvent *event) override;
-    //void hideEvent(QHideEvent *event) override;
+    void showEvent(QShowEvent *event) override;//Устанавливаем фокус на первом виджете и очищаем все виджеты
 public slots:
     void updateSaveButtonState();
 };
