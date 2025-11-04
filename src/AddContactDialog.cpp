@@ -7,6 +7,7 @@ AddContactDialog::AddContactDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    //Проверка корректности значений в полях контакта
     connect(ui->m_nameEdit, &QLineEdit::textChanged, this, &AddContactDialog::updateSaveButtonState);
     connect(ui->m_surnameEdit, &QLineEdit::textChanged, this, &AddContactDialog::updateSaveButtonState);
     connect(ui->m_phoneEdit, &QLineEdit::textChanged, this, &AddContactDialog::updateSaveButtonState);
@@ -28,10 +29,8 @@ Contact AddContactDialog::getContact()
     contact.name = ui->m_nameEdit->text();
     contact.surname = ui->m_surnameEdit->text();
     contact.phone = ui->m_phoneEdit->text();
-    if(!ui->m_emailEdit->text().isEmpty())
-        contact.email = ui->m_emailEdit->text();
-    if(!ui->m_noteEdit->text().isEmpty())
-        contact.note = ui->m_noteEdit->text();
+    contact.email = ui->m_emailEdit->text();
+    contact.note = ui->m_noteEdit->text();
 
     return contact;
 }
@@ -52,9 +51,9 @@ void AddContactDialog::updateSaveButtonState()
 {
     bool nameOk = !ui->m_nameEdit->text().isEmpty();
     bool surnameOk = !ui->m_surnameEdit->text().isEmpty();
-    bool phoneOk = QRegularExpression("^\\d+$").match(ui->m_phoneEdit->text()).hasMatch();
+    bool phoneOk = QRegularExpression("^\\d+$").match(ui->m_phoneEdit->text()).hasMatch();//Если все цифры
     QString email = ui->m_emailEdit->text();
-    bool emailOk = email.isEmpty() || QRegularExpression("^[^@]+@[^@]+$").match(email).hasMatch();
+    bool emailOk = email.isEmpty() || QRegularExpression("^[^@]+@[^@]+$").match(email).hasMatch();//Действительно, если пусто или *@*
 
     ui->m_save->setEnabled(nameOk && surnameOk && phoneOk && emailOk);
 }

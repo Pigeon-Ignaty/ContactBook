@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "QRegularExpression"
 #include <QDebug>
+#include <QMessageBox>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -11,19 +12,19 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->splitter->setCollapsible(0,false);
     ui->splitter->setCollapsible(1,false);
 
+    //Восстанавливаем модель из xml
     m_model = new ContactModel(this);
     QString xmlPath = QCoreApplication::applicationDirPath() + "/data.xml";
     m_model->loadModel(xmlPath);
     ui->contactList->setModel(m_model);
 
+    //Проверка корректности значений в полях контакта
     connect(ui->m_nameEdit, &QLineEdit::textChanged, this, &MainWindow::updateSaveButtonState);
     connect(ui->m_surnameEdit, &QLineEdit::textChanged, this, &MainWindow::updateSaveButtonState);
     connect(ui->m_phoneEdit, &QLineEdit::textChanged, this, &MainWindow::updateSaveButtonState);
     connect(ui->m_emailEdit, &QLineEdit::textChanged, this, &MainWindow::updateSaveButtonState);
 
-    connect(ui->contactList, &QListView::clicked, this, &MainWindow::onContactClicked);
-    connect(ui->contactList->selectionModel(), &QItemSelectionModel::selectionChanged,
-            this, &MainWindow::onSelectionChanged);
+    connect(ui->contactList->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::onSelectionChanged);
     showEditWidgets(false);
     m_addDialog = new AddContactDialog(this);
 }
@@ -37,10 +38,10 @@ void MainWindow::on_m_addBtn_clicked()
 {
     ui->m_saveBtn->setEnabled(false);
     bool result = m_addDialog->exec();
-    if(result){
-        auto contact = m_addDialog->getContact();
+    if(result){//Если нажали сохранить
+        auto contact = m_addDialog->getContact();//Получаем контакт
         m_model->addContact(contact);
-        QModelIndex index = m_model->index(m_model->rowCount() - 1, 0);
+        QModelIndex index = m_model->index(m_model->rowCount() - 1, 0);//Выделяем последний элемент
 
         ui->contactList->setCurrentIndex(index);
         ui->contactList->selectionModel()->select(index, QItemSelectionModel::Select | QItemSelectionModel::Rows);
@@ -49,24 +50,24 @@ void MainWindow::on_m_addBtn_clicked()
 
 void MainWindow::on_m_saveBtn_clicked()
 {
+    auto currentIndex = ui->contactList->currentIndex();
+    if(!currentIndex.isValid())
+        return;
+
+    //Собираем значение полей в структуру
     Contact contact;
     contact.name = ui->m_nameEdit->text();
     contact.surname = ui->m_surnameEdit->text();
     contact.phone = ui->m_phoneEdit->text();
-    if(!ui->m_emailEdit->text().isEmpty())
-        contact.email = ui->m_emailEdit->text();
-    if(!ui->m_noteEdit->text().isEmpty())
-        contact.note = ui->m_noteEdit->text();
-
-    m_model->addContact(contact);
-    QModelIndex index = m_model->index(m_model->rowCount() - 1, 0);
-
-    ui->contactList->setCurrentIndex(index);
-    ui->contactList->selectionModel()->select(index, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+    contact.email = ui->m_emailEdit->text();
+    contact.note = ui->m_noteEdit->text();
+    //Меняем поля модели
+    m_model->editContact(contact, currentIndex);
 }
 
 void MainWindow::updateSaveButtonState()
 {
+    //Проверка введённых данных
     bool nameOk = !ui->m_nameEdit->text().isEmpty();
     bool surnameOk = !ui->m_surnameEdit->text().isEmpty();
     bool phoneOk = QRegularExpression("^\\d+$").match(ui->m_phoneEdit->text()).hasMatch();
@@ -76,35 +77,9 @@ void MainWindow::updateSaveButtonState()
     ui->m_saveBtn->setEnabled(nameOk && surnameOk && phoneOk && emailOk);
 }
 
-void MainWindow::onContactClicked(const QModelIndex &index)
-{
-//    if(!index.isValid())
-//        return;
-
-//    auto model = dynamic_cast<QStandardItemModel*>(const_cast<QAbstractItemModel*>(index.model()));
-//    if(!model)
-//        return;
-
-//    QStandardItem *item = model->itemFromIndex(index);
-//    if(!item)
-//        return;
-
-//    int rowCount = item->rowCount();
-//    QVector<QLineEdit*> widgets = {ui->m_nameEdit, ui->m_surnameEdit, ui->m_phoneEdit, ui->m_emailEdit, ui->m_noteEdit};
-//    for (int i = 0; i < rowCount; i++) {
-//        if(i < rowCount && item->child(i,0)){
-//            widgets[i]->setText(item->child(i, 0)->text());
-//        }
-//        else {
-//            widgets[i]->clear();
-//        }
-//    }
-
-}
-
 void MainWindow::onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
-    // Если выделение снято — очищаем все поля и выходим
+    //Если выделение снято, то очищаем и скрываем виджеты
     if (selected.indexes().isEmpty()) {
         ui->m_nameEdit->clear();
         ui->m_surnameEdit->clear();
@@ -112,17 +87,19 @@ void MainWindow::onSelectionChanged(const QItemSelection &selected, const QItemS
         ui->m_emailEdit->clear();
         ui->m_noteEdit->clear();
         showEditWidgets(false);
-        return; // ← важно, чтобы дальше не шло
+        ui->m_deleteBtn->setEnabled(false);
+        return;
     }
 
-    // Берём первый выделенный элемент
+    //Берём первый выделенный элемент
     QModelIndex index = selected.indexes().first();
-    auto* model = qobject_cast<QStandardItemModel*>(const_cast<QAbstractItemModel*>(index.model()));
+    auto model = qobject_cast<QStandardItemModel*>(ui->contactList->model());
     if (!model) return;
 
     QStandardItem* item = model->itemFromIndex(index);
     if (!item) return;
 
+    ui->m_deleteBtn->setEnabled(true);
     QVector<QLineEdit*> widgets = {
         ui->m_nameEdit,
         ui->m_surnameEdit,
@@ -131,7 +108,7 @@ void MainWindow::onSelectionChanged(const QItemSelection &selected, const QItemS
         ui->m_noteEdit
     };
     showEditWidgets(true);
-
+    //Заполняем значениями в виджеты
     int rowCount = item->rowCount();
     for (int i = 0; i < widgets.size(); ++i) {
         if (i < rowCount && item->child(i, 0))
@@ -143,6 +120,7 @@ void MainWindow::onSelectionChanged(const QItemSelection &selected, const QItemS
 
 void MainWindow::showEditWidgets(bool show)
 {
+    //Показываем или скрываем боковые виджеты
     if(show){
         ui->m_nameEdit->show();
         ui->m_surnameEdit->show();
@@ -155,7 +133,6 @@ void MainWindow::showEditWidgets(bool show)
         ui->label_4->show();
         ui->label_5->show();
         ui->label->show();
-
     }
     else{
         ui->m_nameEdit->hide();
@@ -175,7 +152,46 @@ void MainWindow::showEditWidgets(bool show)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     QString xmlPath = QCoreApplication::applicationDirPath() + "/data.xml";
-
+    //Сохраняем контакты при выходе
     m_model->saveModel(xmlPath);
     QMainWindow::closeEvent(event);
+}
+
+void MainWindow::on_m_deleteBtn_clicked()
+{
+    //Получаем текущий выбранный индекс
+    QModelIndex currentIndex = ui->contactList->currentIndex();
+    if(!currentIndex.isValid())
+        return;
+    //Получаем модель из индекса и снимаем const
+    QStandardItemModel *model = qobject_cast<QStandardItemModel*>(const_cast<QAbstractItemModel*>(currentIndex.model()));
+    if(!model)
+        return;
+
+    //Получаем родителя текущего элемента
+    QStandardItem *parentItem = model->itemFromIndex(currentIndex.parent());
+
+    QStandardItem *item = model->itemFromIndex(currentIndex);
+    if (!item)
+        return;
+
+    auto reply = QMessageBox::question(this, "Удалить контакт?",
+                          "Вы уверены, что хотите удалить контакт " + item->text(),
+                          QMessageBox::Yes | QMessageBox::No);
+    if(reply == QMessageBox::No)
+        return;
+
+    if(parentItem) {
+        parentItem->removeRow(currentIndex.row());
+    }
+    else{
+        model->removeRow(currentIndex.row());
+    }
+}
+
+void MainWindow::on_action_triggered()
+{
+        QMessageBox::about(this, "О программе",
+                           "Список контактов v1.0\n"
+                           "Простое приложение для хранения списка контактов.\n");
 }
